@@ -24,13 +24,47 @@ main {
   width: 80%;
   text-align: center;
   font-size: 2em;
+  display: flex;
+  flex-wrap: wrap;
 }
 
-button {
+.cat-view {
+  height: 50%;
+  width: 100%;
+}
+
+section {
+  box-sizing: border-box;
+  height: 50%;
+  width: 100%;
+  position: relative;
+}
+
+input {
+  height: 2em;
+}
+
+form button {
+  font-size: 0.8em;
+  margin-top: 10px;
+}
+
+.cat-button {
   width: 10vw;
   font-size: 2em;
 }
 
 .cat-wrapper {
   margin: auto;
+}
+
+.admin-button {
+  position: absolute;
+  right: 20vw;
+  top: 10vh;
+  font-size: 2em;
+}
+
+.hidden {
+  display: none;
 }

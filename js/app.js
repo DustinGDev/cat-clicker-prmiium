@@ -39,6 +39,17 @@ class Model {
 
     return catObject.clickcount;
   }
+
+  //Update catObject
+  updateCatObject(catName, newName, newImg, newCount) {
+    let catObj = this.cats.find(obj => obj.name === catName)
+    console.log(catObj);
+    catObj.name = newName;
+    catObj.catImage = newImg;
+    catObj.clickcount = newCount;
+
+    return catObj;
+  }
 }
 
 //Controller
@@ -53,35 +64,47 @@ class Octopuss {
   //Handles all Clicks
   clickHandler(evt) {
 
-    if(evt.target.tagName == 'BUTTON') {
+    if(evt.target.classList.contains('cat-button')) {
       const catName = evt.target.textContent;
       let catObject = octopuss.model.cats.find(obj => obj.name === catName);
       octopuss.catView.removeCat();
-
-      const newElem = octopuss.catView.createCat(catObject);
-
-      octopuss.catView.addToDom(newElem, 'main');
+      octopuss.catView.render(catObject);
     }
 
     if(evt.target.tagName == 'IMG') {
       const newClickCount = octopuss.model.updateCounter();
       octopuss.catView.increaseCount(newClickCount);
     }
+
+    if(evt.target.classList.contains('admin-button')) {
+      document.querySelector('form').classList.toggle('hidden');
+    }
+
+    if(evt.target.classList.contains('save')) {
+      evt.preventDefault();
+      const oldName = document.querySelector('p').textContent;
+      const newName = document.querySelector('.input-name').value;
+      const newImg = document.querySelector('.input-url').value;
+      const newCount = document.querySelector('.input-counter').value;
+
+      const newObj = octopuss.model.updateCatObject(oldName, newName, newImg, newCount);
+      octopuss.menueView.reRender(octopuss.model.cats);
+      octopuss.catView.removeCat();
+      octopuss.catView.render(newObj);
+
+      document.querySelector('form').classList.toggle('hidden');
+    }
+
+    if(evt.target.classList.contains('cancel')) {
+      evt.preventDefault();
+      document.querySelector('form').classList.toggle('hidden');
+    }
   }
 
   //Init the basic rendering. Add all buttons and the first cat
   init() {
-    let that = this
-
-    for(let obj of this.model.cats) {
-      const newButton = that.menueView.createButton(obj);
-      that.view.addToDom(newButton, 'nav');
-    }
-
-    const firstCat = this.model.cats[0];
-    const firstCatElem = this.catView.createCat(firstCat);
-
-    this.view.addToDom(firstCatElem, 'main');
+    this.menueView.render(this.model.cats);
+    this.catView.render(this.model.cats[0]);
   }
 }
 
@@ -99,8 +122,27 @@ class MenueView extends View {
   createButton(obj) {
     const newButton = document.createElement('button');
     newButton.textContent = obj.name;
+    newButton.classList.add('cat-button');
 
     return newButton;
+  }
+
+  reRender(objArr) {
+    let buttons = document.querySelectorAll('.cat-button');
+    for(let elem of buttons) {
+      elem.remove();
+    }
+    this.render(objArr);
+  }
+
+  //Render all buttons
+  render(objArr) {
+    let that = this;
+
+    for(let obj of objArr) {
+      const newButton = that.createButton(obj);
+      that.addToDom(newButton, 'nav');
+    }
   }
 }
 
@@ -129,11 +171,22 @@ class CatView extends View {
   increaseCount(clickCount) {
     const clickCountElem = document.querySelector('.counter');
     clickCountElem.textContent = `Cat has been clicked ${clickCount} times!`;
+    document.querySelector('.input-counter').value = clickCount;
   }
 
   //Remove an cat element
   removeCat() {
     document.querySelector('.cat-wrapper').remove();
+  }
+
+  //Renders the cat
+  render(obj) {
+    const catElem = this.createCat(obj);
+    this.addToDom(catElem, '.cat-view');
+
+    document.querySelector('.input-name').value = obj.name;
+    document.querySelector('.input-url').value = obj.catImage;
+    document.querySelector('.input-counter').value = obj.clickcount;
   }
 }
 
